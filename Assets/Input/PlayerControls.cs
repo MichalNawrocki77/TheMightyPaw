@@ -44,6 +44,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenCloseInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""5ac8b498-8b2e-4709-9418-c5634ee025cd"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -134,6 +143,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d6f3ac16-e518-4a2c-91ab-d8ea71c97f56"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyboardAndMouse"",
+                    ""action"": ""OpenCloseInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f85f4715-c085-4735-87f8-18ccfa3934d8"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""GamePad"",
+                    ""action"": ""OpenCloseInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -172,6 +203,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_StandardActionMap = asset.FindActionMap("StandardActionMap", throwIfNotFound: true);
         m_StandardActionMap_Movement = m_StandardActionMap.FindAction("Movement", throwIfNotFound: true);
         m_StandardActionMap_Dash = m_StandardActionMap.FindAction("Dash", throwIfNotFound: true);
+        m_StandardActionMap_OpenCloseInventory = m_StandardActionMap.FindAction("OpenCloseInventory", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -235,12 +267,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private List<IStandardActionMapActions> m_StandardActionMapActionsCallbackInterfaces = new List<IStandardActionMapActions>();
     private readonly InputAction m_StandardActionMap_Movement;
     private readonly InputAction m_StandardActionMap_Dash;
+    private readonly InputAction m_StandardActionMap_OpenCloseInventory;
     public struct StandardActionMapActions
     {
         private @PlayerControls m_Wrapper;
         public StandardActionMapActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_StandardActionMap_Movement;
         public InputAction @Dash => m_Wrapper.m_StandardActionMap_Dash;
+        public InputAction @OpenCloseInventory => m_Wrapper.m_StandardActionMap_OpenCloseInventory;
         public InputActionMap Get() { return m_Wrapper.m_StandardActionMap; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -256,6 +290,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
+            @OpenCloseInventory.started += instance.OnOpenCloseInventory;
+            @OpenCloseInventory.performed += instance.OnOpenCloseInventory;
+            @OpenCloseInventory.canceled += instance.OnOpenCloseInventory;
         }
 
         private void UnregisterCallbacks(IStandardActionMapActions instance)
@@ -266,6 +303,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
+            @OpenCloseInventory.started -= instance.OnOpenCloseInventory;
+            @OpenCloseInventory.performed -= instance.OnOpenCloseInventory;
+            @OpenCloseInventory.canceled -= instance.OnOpenCloseInventory;
         }
 
         public void RemoveCallbacks(IStandardActionMapActions instance)
@@ -305,5 +345,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
+        void OnOpenCloseInventory(InputAction.CallbackContext context);
     }
 }

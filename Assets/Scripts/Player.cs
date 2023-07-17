@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -25,16 +28,29 @@ public class Player : MonoBehaviour
     #endregion
 
     #endregion
-    // Start is called before the first frame update
-    void Start()
+
+    #region Inventory
+
+    static Inventory inventory;
+    [SerializeField] RectTransform itemsPanel;
+    [SerializeField] RectTransform InventoryTab;
+
+    [SerializeField] Image image;
+
+    #endregion
+    private void Awake()
     {
         playerControls = new PlayerControls();
-
+        inventory= new Inventory();
+    }
+    void Start()
+    {
         playerControls.StandardActionMap.Enable();
         playerControls.StandardActionMap.Movement.performed += Movement_performed;
         playerControls.StandardActionMap.Dash.performed += Dash_performed;
+        playerControls.StandardActionMap.OpenCloseInventory.performed += OpenCloseInventory_performed;
 
-
+        FillItemSlotsList();
     }
 
     // Update is called once per frame
@@ -46,7 +62,6 @@ public class Player : MonoBehaviour
     private void Movement_performed(InputAction.CallbackContext obj)
     {
         movementVectorFromInput = obj.ReadValue<Vector2>();
-        Debug.Log(movementVectorFromInput.magnitude);
     }
     private void HandleMovement()
     {
@@ -74,6 +89,27 @@ public class Player : MonoBehaviour
 
         yield return new WaitForSeconds(dashCooldown);
         playerControls.StandardActionMap.Dash.Enable();
+    }
+    private void OpenCloseInventory_performed(InputAction.CallbackContext obj)
+    {
+        InventoryTab.gameObject.SetActive(!InventoryTab.gameObject.activeSelf);
+    }
+
+    #endregion
+
+    #region inventory
+
+    void FillItemSlotsList()
+    {
+        for (int i = 0; i < itemsPanel.childCount; i++)
+        {
+            inventory.itemSlotsList.Add(itemsPanel.GetChild(i).GetComponent<ItemSlotUI>());
+        }
+    }
+    public void PickUpItem(Item newItem)
+    {
+        inventory.AddItem(newItem);
+        Debug.Log("Picked up HP pot!!  " +  newItem.itemType);
     }
 
     #endregion
