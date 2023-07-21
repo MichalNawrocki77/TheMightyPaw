@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class ItemUI
 {
-    public Item item;
+    public ItemSO item;
     //public int? stackCount = null;
     
     
-    public ItemUI(Item item)
+    public ItemUI(ItemSO item)
     {
         this.item = item;
         //this.stackCount = stackCount;

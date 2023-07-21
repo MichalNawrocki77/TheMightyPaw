@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class ItemGameObject : MonoBehaviour
 {
-    Item item;
-    void Start()
+    public ItemSO item;
+    [SerializeField] int stackCount = 1;
+    /// <summary>
+    /// If you want to override this method, please bear in mind that Item's OnTriggerEnter2d automatically calls Destroy on itself.
+    /// To have all your other OnTriggerEnter functionality, put it before base.OnTriggerEnter call.
+    /// </summary>
+    /// <param name="collision"></param>
+    internal virtual void OnTriggerEnter2D(Collider2D collision)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.GetComponent<Player>().PickUpItem(item, stackCount);
+            Destroy(this.gameObject);
+        }
     }
 }

@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
-using static UnityEditor.Progress;
+using UnityEngine.EventSystems;
 
 public class Inventory
 {
@@ -21,7 +18,7 @@ public class Inventory
     //    itemSlotsList[itemIndex].image.sprite = itemSlotsList[itemIndex].ItemUI.item.sprite;
     //    itemSlotsList[itemIndex].stackCountText = itemSlotsList[itemIndex].ItemUI.item.;
     //}
-    public void AddItem(Item newItem)
+    public void AddItem(ItemSO newItem, int stackCount)
     {
         if(newItem.itemType == StackableItemType.Unstackable)
         {
@@ -29,30 +26,40 @@ public class Inventory
         }
         else
         {
-            AddStackableItem(newItem);
+            AddStackableItem(newItem, stackCount);
         }
     }
-    void AddStackableItem(Item newItem)
+    void AddStackableItem(ItemSO newItem, int stackCount)
     {
         if (CheckIfInventoryFull())
         {
             Debug.Log("too many items in inventory!");
             return;
         }
-        for (int i=0;i<currentItemsCount;i++)
+        for (int i=0;i<itemSlotsList.Count;i++)
         {
+            if (itemSlotsList[i].Item is null)
+            {
+                continue;
+            } 
             if (itemSlotsList[i].Item.itemType == newItem.itemType)
             {
-                itemSlotsList[i].StackCount++;
+                itemSlotsList[i].StackCount += stackCount;
+                return;
+            }            
+        }
+        for(int i=0;i<itemSlotsList.Count;i++)
+        {
+            if (itemSlotsList[i].Item is null)
+            {
+                itemSlotsList[i].Item = newItem;
+                itemSlotsList[i].StackCount = stackCount;
                 currentItemsCount++;
                 return;
             }
         }
-        itemSlotsList[currentItemsCount].Item = newItem;
-        itemSlotsList[currentItemsCount].StackCount = 1;
-        currentItemsCount++;
     }
-    void AddUnstackableItem(Item newItem)
+    void AddUnstackableItem(ItemSO newItem)
     {
         if (CheckIfInventoryFull())
         {
@@ -60,6 +67,7 @@ public class Inventory
             return;
         }
         itemSlotsList[currentItemsCount].Item = newItem;
+        itemSlotsList[currentItemsCount].StackCount = null;
         currentItemsCount++;
     }
     bool CheckIfInventoryFull()

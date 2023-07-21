@@ -93,6 +93,16 @@ public class Player : MonoBehaviour
     private void OpenCloseInventory_performed(InputAction.CallbackContext obj)
     {
         InventoryTab.gameObject.SetActive(!InventoryTab.gameObject.activeSelf);
+        Cursor.visible = !Cursor.visible;
+        switch (Cursor.visible)
+        {
+            case true:
+                Cursor.lockState = CursorLockMode.Confined;
+                break;
+            case false:
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+        }
     }
 
     #endregion
@@ -106,9 +116,9 @@ public class Player : MonoBehaviour
             inventory.itemSlotsList.Add(itemsPanel.GetChild(i).GetComponent<ItemSlotUI>());
         }
     }
-    public void PickUpItem(Item newItem)
+    public void PickUpItem(ItemSO newItem, int stackCount)
     {
-        inventory.AddItem(newItem);
+        inventory.AddItem(newItem, stackCount);
         Debug.Log("Picked up HP pot!!  " +  newItem.itemType);
     }
 
