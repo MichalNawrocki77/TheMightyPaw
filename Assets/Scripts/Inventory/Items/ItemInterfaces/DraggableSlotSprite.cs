@@ -4,8 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
-public class DraggableSlotSprite : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
+public class DraggableSlotSprite : MonoBehaviour,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler
 {
     [HideInInspector] public ItemSlotUI currentSlot;
     Image imageComponent;
@@ -23,6 +27,7 @@ public class DraggableSlotSprite : MonoBehaviour, IBeginDragHandler,IDragHandler
         draggedItemCount = currentSlot.StackCount;
 
         imageComponent.raycastTarget = false;
+        Debug.Log("BeginDrag");
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -33,10 +38,17 @@ public class DraggableSlotSprite : MonoBehaviour, IBeginDragHandler,IDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         //this event triggers after ItemSlotUI's OnDrop
-        transform.SetParent(currentSlot.transform, false);
-        transform.position = currentSlot.transform.position;
+        transform.SetParent(currentSlot.transform);
         currentSlot.LoadRefsFromChild();
+        if (draggedItem is not null)
+        {
+            currentSlot.Item = draggedItem;
+        }
+        currentSlot.StackCount = draggedItemCount;
+
+        transform.position = currentSlot.transform.position;
         imageComponent.raycastTarget = true;
+        Debug.Log("EndDrag");
     }
     
 }

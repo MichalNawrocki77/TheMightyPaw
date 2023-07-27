@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     private PlayerControls playerControls;
+    private DefaultInputActions defaultInputActions;
 
     #region Input related variables
 
@@ -41,6 +42,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         playerControls = new PlayerControls();
+        defaultInputActions = new DefaultInputActions();
         inventory= new Inventory();
     }
     void Start()

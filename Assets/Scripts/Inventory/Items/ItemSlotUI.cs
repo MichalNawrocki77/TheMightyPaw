@@ -4,14 +4,18 @@ using System.Diagnostics.Contracts;
 
 using TMPro;
 
+using Unity.VisualScripting;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemSlotUI : MonoBehaviour, IDropHandler
+public class ItemSlotUI : MonoBehaviour,IDropHandler
 {
     TMP_Text stackCountText;
-    [HideInInspector] public Image image;
+    [HideInInspector] public Image spriteImageComponent;
+    [SerializeField] Image imageComponent;
+    [SerializeField] Selectable selectableComponent;
 
     /// <summary>
     /// Setting this property will automatically update this ItemSlot's sprite
@@ -23,8 +27,7 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler
         set
         {
             item = value;
-            this.image.sprite = item.sprite;
-            
+            this.spriteImageComponent.sprite = item.sprite;
         }
     }
 
@@ -47,39 +50,37 @@ public class ItemSlotUI : MonoBehaviour, IDropHandler
     }
     public void LoadRefsFromChild()
     {
-        image = transform.GetChild(0).GetComponent<Image>();
-        stackCountText = image.transform.GetChild(0).GetComponent<TMP_Text>();
+        spriteImageComponent = transform.GetChild(0).GetComponent<Image>();
+        stackCountText = spriteImageComponent.transform.GetChild(0).GetComponent<TMP_Text>();
     }
-
+    #region UIEvents
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("OnDrop");
-
         DraggableSlotSprite draggedItem = eventData.pointerDrag.transform.GetComponent<DraggableSlotSprite>();
         
-        //swapping children
-        transform.GetChild(0).SetParent(draggedItem.currentSlot.transform, false);
-        draggedItem.currentSlot.LoadRefsFromChild();
-        draggedItem.transform.SetParent(transform, false);
-        LoadRefsFromChild();
+        Debug.Log("OnDrop");
+        DraggableSlotSprite replacedItem = transform.GetChild(0).GetComponent<DraggableSlotSprite>();
 
-        //replace Item and StackCount in both ItemSlotsUI's
+        //setting other slot's child (not this one's, explaination in line 79
+
+        //When you drop draggable item on the original slot, you get NullPointerException on this line???????
+        //My current idea to fix is to instantiate a new DraggableSlotItem on top of the orignal slot, similar to how Diablo IV handles this functionality????????
+        replacedItem.transform.SetParent(draggedItem.currentSlot.transform, false);
+        replacedItem.currentSlot = draggedItem.currentSlot;
+        replacedItem.currentSlot.LoadRefsFromChild();
+
+        //replace Item and StackCount in the other slot
         //bear in mind that draggedItem.currentSlot is still the "old" slot, I haven't changed it yet
-        draggedItem.currentSlot.item = item;
-        item = draggedItem.draggedItem;
+        //that's why I dont replace this slot's item and stackCount, I replace them in OnDragEnd(), since it's there, where I load new refs to children.
+        replacedItem.currentSlot.item = replacedItem.draggedItem;
+        replacedItem.currentSlot.StackCount = replacedItem.draggedItemCount;
 
-        draggedItem.currentSlot.StackCount = StackCount;
-        StackCount = draggedItem.draggedItemCount;
-        
-
-        //Changing parents and replacing old refs to image and StackCountText with refs to new childre
-        
-        Debug.Log("previous slot: " + draggedItem.currentSlot.Item);
-        Debug.Log("previous slot: " + draggedItem.currentSlot.stackCount);
-
-        Debug.Log("new slot: " + Item);
-        Debug.Log("new slot: " + stackCount);
-
+        //setting new parent for dragged item happens in it's own DraggableSlotSprite.OnEndDrag(), because of a bug caused by dropping the item on none of the slots (the parent would not be reassigned, since OnDrop() was not called).
+        //LoadRefsFromChild call also happens in OnEndDrag() because of a ChildOutOfBOunds exception. It happened because I was calling LoadRefsFromChild before setting a new child
         draggedItem.currentSlot = this;
+
+        selectableComponent.Select();
     }
+    
+    #endregion
 }

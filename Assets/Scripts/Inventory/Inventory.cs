@@ -36,6 +36,7 @@ public class Inventory
             Debug.Log("too many items in inventory!");
             return;
         }
+        //Add the item to already existing stackable item of same kind
         for (int i=0;i<itemSlotsList.Count;i++)
         {
             if (itemSlotsList[i].Item is null)
@@ -48,6 +49,7 @@ public class Inventory
                 return;
             }            
         }
+        //if none were found, add the item to first empty slot
         for(int i=0;i<itemSlotsList.Count;i++)
         {
             if (itemSlotsList[i].Item is null)
@@ -66,8 +68,17 @@ public class Inventory
             Debug.Log("too many items in inventory!");
             return;
         }
-        itemSlotsList[currentItemsCount].Item = newItem;
-        itemSlotsList[currentItemsCount].StackCount = null;
+        //I haven't tested this code, it might be buggy
+        for (int i = 0; i < itemSlotsList.Count; i++)
+        {
+            if (itemSlotsList[i].Item is null)
+            {
+                itemSlotsList[i].Item = newItem;
+                itemSlotsList[i].StackCount = null;
+                currentItemsCount++;
+                return;
+            }
+        }
         currentItemsCount++;
     }
     bool CheckIfInventoryFull()
