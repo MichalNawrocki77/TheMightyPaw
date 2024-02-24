@@ -14,7 +14,7 @@ public class DraggableSlotSprite : MonoBehaviour,
     [HideInInspector] public ItemSlotUI currentSlot;
     Image imageComponent;
     public ItemSO draggedItem;
-    public int? draggedItemCount;
+    public int draggedItemCount;
     private void Awake()
     {
         currentSlot = transform.parent.GetComponent<ItemSlotUI>();
@@ -39,12 +39,8 @@ public class DraggableSlotSprite : MonoBehaviour,
     {
         //this event triggers after ItemSlotUI's OnDrop
         transform.SetParent(currentSlot.transform);
-        currentSlot.LoadRefsFromChild();
-        if (draggedItem is not null)
-        {
-            currentSlot.Item = draggedItem;
-        }
-        currentSlot.StackCount = draggedItemCount;
+        //currentSlot.LoadRefsFromChild();
+        
 
         transform.position = currentSlot.transform.position;
         imageComponent.raycastTarget = true;

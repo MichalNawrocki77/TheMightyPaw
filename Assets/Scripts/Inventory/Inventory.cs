@@ -1,28 +1,63 @@
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Inventory
+public class Inventory : MonoBehaviour
 {
+    [HideInInspector]
     public List<ItemSlotUI> itemSlotsList;
 
-    //to not iterate every single time over the whole itemSlotsList
+    [SerializeField] RectTransform itemsPanel;
+    [SerializeField] RectTransform InventoryPanel;
+
     int currentItemsCount;
-    int maxCount = 16;
-    public Inventory()
+
+    private void Awake()
     {
-        itemSlotsList= new List<ItemSlotUI>();
+        itemSlotsList = new List<ItemSlotUI>();
+
+        FillItemSlotsList();
     }
-    //void UpdateSingleItemInInventory(int itemIndex)
-    //{
-    //    itemSlotsList[itemIndex].image.sprite = itemSlotsList[itemIndex].ItemUI.item.sprite;
-    //    itemSlotsList[itemIndex].stackCountText = itemSlotsList[itemIndex].ItemUI.item.;
-    //}
+    void FillItemSlotsList()
+    {
+        ItemSlotUI temp;
+        for (int i = 0; i < itemsPanel.childCount; i++)
+        {
+            temp = itemsPanel.GetChild(i).GetComponent<ItemSlotUI>();
+
+            temp.inventory = this;
+            itemSlotsList.Add(temp);
+        }
+    }
+    public void OpenCloseInventory()
+    {
+        InventoryPanel.gameObject.SetActive(!InventoryPanel.gameObject.activeSelf);
+        Cursor.visible = !Cursor.visible;
+        switch (Cursor.visible)
+        {
+            case true:
+                Cursor.lockState = CursorLockMode.Confined;
+                break;
+            case false:
+                Cursor.lockState = CursorLockMode.Locked;
+                break;
+        }
+    }
     public void AddItem(ItemSO newItem, int stackCount)
     {
+        switch (newItem.itemType)
+        {
+            case StackableItemType.Unstackable:
+                AddUnstackableItem(newItem);
+                break;
+
+            case StackableItemType.HealthPotion:
+                break;
+        }
         if(newItem.itemType == StackableItemType.Unstackable)
         {
-            AddUnstackableItem(newItem);
+            
         }
         else
         {
@@ -74,16 +109,27 @@ public class Inventory
             if (itemSlotsList[i].Item is null)
             {
                 itemSlotsList[i].Item = newItem;
-                itemSlotsList[i].StackCount = null;
+                itemSlotsList[i].StackCount = 0;
                 currentItemsCount++;
                 return;
             }
         }
         currentItemsCount++;
     }
+    public void SwapItemsInSlots(ItemSlotUI newSlot, ItemSlotUI oldSlot)
+    {
+        int tempStackCount = newSlot.StackCount;
+        ItemSO tempItem = newSlot.Item;
+
+        newSlot.StackCount = oldSlot.StackCount;
+        newSlot.Item = oldSlot.Item;
+
+        oldSlot.StackCount = tempStackCount;
+        oldSlot.Item = tempItem;
+    }
     bool CheckIfInventoryFull()
     {
-        return currentItemsCount >= maxCount;
+        return currentItemsCount >= itemSlotsList.Count;
     }
     
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,14 @@ public class Player : MonoBehaviour
 
     #region Input related variables
 
-    #region movement
+        #region movement
 
     private Vector2 movementVectorFromInput;
     [SerializeField] float speed;
 
     #endregion
 
-    #region Dash
+        #region Dash
 
     [SerializeField] float dashSpeed;
     [SerializeField] float dashTime;
@@ -32,18 +33,13 @@ public class Player : MonoBehaviour
 
     #region Inventory
 
-    static Inventory inventory;
-    [SerializeField] RectTransform itemsPanel;
-    [SerializeField] RectTransform InventoryTab;
-
-    [SerializeField] Image image;
+    [SerializeField] Inventory inventory;
 
     #endregion
     private void Awake()
     {
         playerControls = new PlayerControls();
         defaultInputActions = new DefaultInputActions();
-        inventory= new Inventory();
     }
     void Start()
     {
@@ -52,7 +48,6 @@ public class Player : MonoBehaviour
         playerControls.StandardActionMap.Dash.performed += Dash_performed;
         playerControls.StandardActionMap.OpenCloseInventory.performed += OpenCloseInventory_performed;
 
-        FillItemSlotsList();
     }
 
     // Update is called once per frame
@@ -94,30 +89,19 @@ public class Player : MonoBehaviour
     }
     private void OpenCloseInventory_performed(InputAction.CallbackContext obj)
     {
-        InventoryTab.gameObject.SetActive(!InventoryTab.gameObject.activeSelf);
-        Cursor.visible = !Cursor.visible;
-        switch (Cursor.visible)
+        if(inventory is not null)
         {
-            case true:
-                Cursor.lockState = CursorLockMode.Confined;
-                break;
-            case false:
-                Cursor.lockState = CursorLockMode.Locked;
-                break;
+            inventory.OpenCloseInventory();            
+            return;
         }
+        Debug.Log("Inventory jest null");
     }
 
     #endregion
 
     #region inventory
 
-    void FillItemSlotsList()
-    {
-        for (int i = 0; i < itemsPanel.childCount; i++)
-        {
-            inventory.itemSlotsList.Add(itemsPanel.GetChild(i).GetComponent<ItemSlotUI>());
-        }
-    }
+    
     public void PickUpItem(ItemSO newItem, int stackCount)
     {
         inventory.AddItem(newItem, stackCount);
